@@ -1,0 +1,47 @@
+{% extends "dashboard.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static "plugins/font-awesome-4.7.0/css/font-awesome.min.css" %}">
+{% endblock %}
+{% block main %}
+    <h1>修改文章</h1>
+
+    <form class="form-horizontal" method="post" action="" novalidate>
+        {% csrf_token %}
+        {# 要去展示这个数据，和新增代码一模一样 #}
+        {# form添加的时候没有往里边传任何的数据，循环都是空的，让用户进行填写的 #}
+        {# 现在生成的这个modelform，里边传了一个实例对象，这个实例对象个个字段都是对应的，#}
+        {# 都会对应的拿上你的model里边的字段赋值到form字段里的initial(默认值)#}
+        {% for article in form_obj %}  {# article 当做form_obj.字段名  form_obj对象#}
+            <div class="form-group {% if article.errors %}has-error{% endif %}">
+
+                <label for="{{ article.id_for_label }}" class="col-sm-2 control-label">{{ article.label }}
+                </label>
+                <div class="col-sm-8">
+                    {{ article }}
+                    <span class="help-block">{{ article.errors.0 }} {# 错误信息 #}</span>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="form-group {% if article_detail_form_obj.content.errors %}has-error{% endif %}">
+            <label for="detail" class="col-sm-2 control-label">文章详情</label>
+            <div class="col-sm-8">
+                {#                <textarea class="form-control" rows="3" name="detail" id="detail"#}
+                {#                >{{ obj.detail.content }}</textarea>#}
+                {{ article_detail_form_obj.content }}
+                <span class="help-block">{{ article_detail_form_obj.content.errors.0 }} {# 错误信息 #}</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">保存</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block js %}
+    {% load static %}
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+{% endblock %}

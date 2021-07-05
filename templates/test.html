@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>每天一个JavaScript实例-点击图片显示大图</title>
+{#    <style>#}
+{#        body {#}
+{#            background-color: #0081FF;#}
+{#        }#}
+{##}
+{#        img {#}
+{#            position: absolute;#}
+{#            top: 50%;#}
+{#            left: 50%;#}
+{#            transform: translate(-50%, -50%);#}
+{#            width: 450px;#}
+{#            height: 300px;#}
+{#        }#}
+{#    </style>#}
+</head>
+
+<body>
+
+
+<form action="" method="post" novalidate>
+    {% csrf_token %}
+    <input type="text" name="username"/>
+    <input type="password" name="password"/>
+    {{ form_obj.captcha }}
+    <input type="submit" value="login"/>
+</form>
+
+</body>
+</html>

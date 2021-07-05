@@ -1,0 +1,65 @@
+{% extends "dashboard.html" %}
+
+{% block head %}
+    <li>
+        <a href="{% url "article_list" %}"><i class="fa fa-book"></i> <span
+                class="nav-label">文章管理</span>
+        </a>
+        {# <span class="fa arrow"></span> 向下箭头#}
+        {#                    <ul class="nav nav-second-level collapse">#}
+        {#                        <li><a href="index.html">Dashboard v.1</a></li>#}
+        {#                        <li><a href="dashboard_2.html">Dashboard v.2</a></li>#}
+        {#                        <li><a href="dashboard_3.html">Dashboard v.3</a></li>#}
+        {#                        <li><a href="dashboard_4_1.html">Dashboard v.4</a></li>#}
+        {#                        <li><a href="dashboard_5.html">Dashboard v.5 <span#}
+        {#                                class="label label-primary pull-right">NEW</span></a></li>#}
+        {#                    </ul>#}
+    </li>
+
+    <li >
+        <a href="{% url 'category_list' %}"><i class="fa fa-diamond"></i> <span
+                class="nav-label">分类管理</span></a>
+    </li>
+
+    <li class="active">
+        <a href="{% url 'series_list' %}"><i class="fa fa-server"></i> <span
+                class="nav-label">系列管理</span></a>
+    </li>
+{% endblock %}
+
+
+{% block main %}
+    <h1>系列列表</h1>
+    <a class="btn btn-primary btn-sm" href="{% url "series_add" %}"><i class="fa fa-plus"></i></a>
+
+    <table class="table table-bordered table-hover tab-content">
+        <thead>
+        <tr>
+            <th>序号</th>
+            <th>id</th>
+            <th>标题</th>
+            <th>文章的个数</th>
+            <th>用户的个数</th>
+            <th>操作</th>
+            <th>删除</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for series in all_series %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ series.id }}</td>
+                <td>{{ series.title }}</td>
+                <td>{{ series.articles.count }}</td>
+                <td>{{ series.users.count }}</td>
+                {% load mytags %}
+                <td><a href="{% reverse_url request "series_edit" series.id %}"><i class="fa fa-edit fa-2x"></i></a>
+                </td>
+                <td><a href="{% url "series_del" series.id %}"><i class="fa fa-trash-o fa-2x"></i></a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ page_html|safe }}
+
+{% endblock %}

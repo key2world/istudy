@@ -1,0 +1,246 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Title</title>#}
+{#</head>#}
+{#<body>#}
+{##}
+{#<form action=""method="post" novalidate>#}
+{#    {% csrf_token %}#}
+{#    <p>#}
+{#        <label for="{{ form_obj.username.id_for_label }}">{{ form_obj.username.label }}</label>#}
+{#        {{ form_obj.username }}#}
+{#        <span style="color: red"> {{ form_obj.username.errors.0 }}</span>#}
+{#    </p>#}
+{##}
+{#    <p>#}
+{#        <label for="{{ form_obj.password.id_for_label }}">{{ form_obj.password.label }}</label>#}
+{#        {{ form_obj.password }}#}
+{#        <span style="color: red"> {{ form_obj.password.errors.0 }}</span>#}
+{#    </p>#}
+{##}
+{#    <p>#}
+{#        <label for="{{ form_obj.re_pwd.id_for_label }}">{{ form_obj.re_pwd.label }}</label>#}
+{#        {{ form_obj.re_pwd }}#}
+{#        <span style="color: red"> {{ form_obj.re_pwd.errors.0 }}</span>#}
+{#    </p>#}
+{##}
+{#    <p>#}
+{#        <label for="{{ form_obj.position.id_for_label }}">{{ form_obj.position.label }}</label>#}
+{#        {{ form_obj.position }}#}
+{#        <span style="color: red"> {{ form_obj.position.errors.0 }}</span>#}
+{#    </p>#}
+{##}
+{#    <p>#}
+{#        <label for="{{ form_obj.company.id_for_label }}">{{ form_obj.company.label }}</label>#}
+{#        {{ form_obj.company }}#}
+{#        <span style="color: red"> {{ form_obj.company.errors.0 }}</span>#}
+{#    </p>#}
+{##}
+{#    <p>#}
+{#        <label for="{{ form_obj.phone.id_for_label }}">{{ form_obj.phone.label }}</label>#}
+{#        {{ form_obj.phone }}#}
+{#        <span style="color: red"> {{ form_obj.phone.errors.0 }}</span>#}
+{#    </p>#}
+{##}
+{#    <button>注册</button>#}
+{#</form>#}
+{##}
+{#</body>#}
+{#</html>#}
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>注册 | iStudy</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {#<script src="{% static "/ajax_setup.js" %}"></script>#} {# 实现ajax post请求 #}
+    <link rel="stylesheet" href="https://www.jq22.com/jquery/font-awesome.4.6.0.css">
+    <script src="{% static "js/bootstrap.min.js" %}"></script>
+    <script src="{% static "js/jquery.min.js" %}"></script>
+</head>
+<body>
+<div class="login-container">
+    <h1>iStudy知识学习平台</h1>
+    <div class="connect">
+        <p>欢迎注册</p>
+    </div>
+    <form action="" method="post" id="loginForm" novalidate enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <nobr>
+            <div>{{ form_obj.username }}
+                <span id="username_error" style="color: red"> {{ form_obj.username.errors.0 }}</span>
+            </div>
+        </nobr>
+
+        <nobr>
+            <div>{{ form_obj.password }}
+                <span id="password_error" style="color: red"> {{ form_obj.password.errors.0 }}</span>
+            </div>
+        </nobr>
+
+        <nobr>
+            <div>{{ form_obj.re_pwd }}
+                <span id="re_pwd_error" style="color: red"> <i>{{ form_obj.re_pwd.errors.0 }}</i></span>
+            </div>
+        </nobr>
+
+        <nobr>
+            <div>{{ form_obj.position }}
+                <span style="color: red"> {{ form_obj.position.errors.0 }}</span>
+            </div>
+        </nobr>
+
+        <nobr>
+            <div>{{ form_obj.company }}
+                <span style="color: red"> {{ form_obj.company.errors.0 }}</span>
+            </div>
+        </nobr>
+
+        <nobr>
+            <div>{{ form_obj.phone }}
+                <span style="color: red"> {{ form_obj.phone.errors.0 }}</span>
+            </div>
+        </nobr>
+
+        <div>{{ form_obj.avatar }}
+            <span style="color: red"> {{ form_obj.avatar.errors.0 }}</span>
+        </div>
+
+        <div>
+            {{ form_obj.captcha.label }}
+            {{ form_obj.captcha }}
+            <span id="captcha_error" style="color: red"> {{ form_obj.captcha.errors.0 }}</span>
+
+        </div>
+
+        <button id="submit" type="submit">注 册</button>
+    </form>
+    <a href="{% url "login" %}">
+        <button type="button" class="register-tis">有账号，去登录</button>
+    </a>
+</div>
+
+</body>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/common.js' %}"></script>
+<script src="{% static 'js/supersized.3.2.7.min.js' %}"></script>
+<script src="{% static 'js/supersized-init.js' %}"></script>
+
+
+<script>
+    $("#id_username").blur(function () {  // 当input框失去焦点
+        var username = $("#id_username").val();
+        $.ajax({
+            url: "{% url "check_user_name" %}",
+            data: {
+                username: username,
+            },
+
+            success: function (res) {
+                if (res.username === "chinese") {
+                    $("#check_username").remove("");
+                    $("#username_error").text("用户名不可以是汉字哟")
+                } else if (res.username === "short") {
+                    $("#check_username").remove("");
+                    $("#username_error").text("用户名不能少于4位哟")
+                } else if (res.username) {
+                    $("#check_username").remove("");
+                    $("#username_error").text("用户名重复")
+                } else {
+                    $("#username_error").text("");
+                    $("#check_username").remove("");
+                    $("#username_error").after('<i id="check_username" class="fa fa-check-square fa-2x"></i>');
+                }
+            }
+        })
+
+    });
+
+    $("#id_password").blur(function () {
+        var password = $("#id_password").val();
+        $.ajax({
+            url: "{% url "check_password" %}",
+            type: "post",
+            data: {
+                password: password,
+                "csrfmiddlewaretoken": $('[name="csrfmiddlewaretoken"]').val(),
+            },
+
+            // 下边和上边都行
+            // headers: {
+            //    "x-csrftoken":$('[name="csrfmiddlewaretoken"]').val(),
+            // },
+            success: function (res) {
+                if (res.password) {
+                    $("#password_error").text("");
+                    $("#check_password").remove("");
+                    $("#password_error").after('<i id="check_password" class="fa fa-check-square fa-2x"></i>');
+                } else {
+                    $("#password_error").text("");
+                    $("#check_password").remove("");
+                    $("#password_error").text("密码不可以少于6位")
+                }
+            }
+        })
+    });
+
+    $("#id_re_pwd").blur(function () {
+        var password = $("#id_password").val();
+        var re_pwd = $("#id_re_pwd").val();
+        $.ajax({
+            url: "{% url "check_re_pwd" %}",
+            type: "post",
+            data: {
+                password: password,
+                re_pwd: re_pwd,
+                "csrfmiddlewaretoken": $('[name="csrfmiddlewaretoken"]').val(),
+            },
+            success: function (res) {
+                {#console.log(res.password);#}
+                if (res.password == 1) {
+                    $("#re_pwd_error").text("请输入密码")
+                } else if (res.password == 2) {
+                    $("#re_pwd_error").text("");
+                    $("#check").remove("");
+                    $("#re_pwd_error").after('<i id="check" class="fa fa-check-square fa-2x"></i>');
+                } else {
+                    $("#re_pwd_error").text("");
+                    $("#check").remove("");
+                    $("#re_pwd_error").text("两次密码不一致哟")
+                }
+            }
+        })
+    });
+
+    $("#id_captcha_1").blur(function () {
+        var hashkey = $("#id_captcha_0").val();  // 隐藏的值
+        var response = $("#id_captcha_1").val();  // 用户输入的值
+        $.ajax({
+            url: "{% url "check_captcha" %}",
+            data: {
+                hashkey: hashkey,
+                response: response,
+            },
+            success: function (res) {
+
+                if (res.status === 1) {
+                    $("#captcha_error").text("");
+                    $("#check_captcha").remove("");
+                    $("#captcha_error").after('<i id="check_captcha" class="fa fa-check-square fa-2x"></i>');
+
+                } else {
+                    $("#check_captcha").remove("");
+                    $("#captcha_error").text("验证码错误");
+                }
+            }
+        })
+    })
+</script>
+
+</html>

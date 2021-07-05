@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Blog Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/blog.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "css/comment/style.css" %}">
+    <link rel="stylesheet" href="{% static "css/comment/comment.css" %}">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+</head>
+
+<body>
+
+{% include "nav.html" %}
+
+<div class="container">
+
+    <div class="blog-header">
+        <h1>{{ article_obj.title }}</h1>
+        <p class="lead blog-description">{{ article_obj.detail.content|safe }}</p>
+        <div class="commentAll">
+
+            <div class="reviewArea clearfix">
+                <div class="flex-text-wrap">
+                    <pre class="pre"><span></span><br></pre>
+                    <textarea class="content comment-input" placeholder="请输入您的评论…"
+                    ></textarea></div>
+                <a href="javascript:;" id="comment" class="plBtn">评论</a>
+            </div>
+
+
+            <div class="comment-show">
+                {% for comment in article_obj.comment_set.all %}
+                    <div class="comment-show-con clearfix">
+                        <div class="comment-show-con-img pull-left"><img src="{{ comment.author.avatar.url }}" alt="">
+                        </div>
+                        <div class="comment-show-con-list pull-left clearfix">
+                            <div class="pl-text clearfix">
+                                <a href="#" class="comment-size-name">{{ comment.author.username }} : </a>
+                                <span class="my-pl-con">{{ comment.content }}</span>
+                            </div>
+                            <div class="date-dz">
+                                <span class="date-dz-left pull-left comment-time">{{ comment.time }}</span>
+                                <div class="date-dz-right pull-right comment-pl-block">
+                                    <a href="javascript:;" class="removeBlock">删除</a>
+                                    <a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left">回复</a>
+                                </div>
+                            </div>
+                            <div class="hf-list-con"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+</div><!-- /.container -->
+
+<footer class="blog-footer">
+    <p>Blog template built for <a href="http://getbootstrap.com">Bootstrap</a> by <a
+            href="https://twitter.com/mdo">@mdo</a>.</p>
+    <p>
+        <a href="#">Back to top</a>
+    </p>
+</footer>
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+{#<script>#}
+{#    $("#comment").click(function () {#}
+{#        alert(123)#}
+{#    })#}
+{#</script>#}
+
+<script>
+    // 文章是带积分的，系列的文章 时间到了之后发请求 完成积分计算
+
+    var user_id ={{ request.user_obj.pk }};
+    var article_id ={{ article_obj.pk }};
+    var point = {{ article_obj.point }};
+    var time = {{ article_obj.duration.total_seconds }};  // total_seconds会将时间转换为秒数
+
+    // 判断是否是有积分的文章
+    if (point != 0) {
+        setTimeout(function () {
+            {#alert("123")#}
+            $.ajax({
+                url: "/point/",
+                data: {
+                    user_id: user_id,
+                    article_id: article_id,
+                    point: point,
+                },
+                success: function (res) {
+                    if (res.status) {
+                        {#alert(`完成阅读,获得{{ article_obj.point }}积分`)#}
+                        {#alert(`完成阅读,获得${point}积分`);#}
+                        {# ${}通过js做的操作 渲染出有相应的变量然后做的替换 #}
+
+                        swal("完成阅读", `恭喜获得${point}积分`, "success");
+                    }
+                }
+            })
+        }, time * 1000)
+    }
+
+
+    // 评论
+    $("#comment").click(function () {
+        {#alert(111);#}
+        var content = $(".comment-input").val();  // 拿到文章评论的内容
+        var article_id = {{ article_obj.pk }};  // 拿到文章的id
+        var author_id = {{ request.user_obj.pk }};  // 拿到评论者的id
+        var author_name = "{{ request.user_obj.username }}";  // 拿到评论者的name
+        var author_avatar = "{{ request.user_obj.avatar.url }}";  // .url可以拿到头像的地址
+        var path = "{{ request.path_info }}";  // 获取到当前地址
+        // 两个大括号是咋们做模板渲染的时候，你直接返回给页面的时候就渲染好了
+        {#alert(article_id);#}
+        $.ajax({
+            url: "/comment/",
+            data: {
+                content: content,
+                article_id: article_id,
+                author_id: author_id,
+            },
+            success: (res) => {
+                if (res.status) {   // res返回过来会直接做上反序列化
+                    // 评论插入到数据库中成功
+                    // 现在要做的是将评论插入到当前页面中
+                    var obj_id = res.pk;
+
+                    $(".comment-show").append(`                <div class="comment-show-con clearfix">
+                    <div class="comment-show-con-img pull-left"><img src="${author_avatar}" alt="">
+                    </div>
+                    <div class="comment-show-con-list pull-left clearfix">
+                        <div class="pl-text clearfix">
+                            <a href="#" class="comment-size-name">${author_name}: </a>
+                            <span class="my-pl-con">${content}</span>
+                        </div>
+                        <div class="date-dz">
+                            <span class="date-dz-left pull-left comment-time">${res.time}</span>
+                            <div class="date-dz-right pull-right comment-pl-block">
+
+                                <a href="/comment_del/${obj_id}?url=${path}" class="removeBlock">删除</a>
+                                <a href="javascript:;" class="date-dz-pl pl-hf hf-con-block pull-left">回复</a>
+                            </div>
+                        </div>
+                        <div class="hf-list-con"></div>
+                    </div>
+                </div>`);
+                    {# ${}通过js做的操作 渲染出有相应的变量然后做的替换 #}
+
+                    // $(this).val("");
+                    // 如要使用设置点击事件的按钮的值，ajax发请求不可以是回调函数(会找不到 $(this))
+                    // 要将function 换为 =>   (就是将function该为箭头函数)
+                    $(".comment-input").val('');
+                    {#alert("评论成功！")#}
+                }
+            }
+        })
+    })
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% extends "dashboard.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static "plugins/font-awesome-4.7.0/css/font-awesome.min.css" %}">
+{% endblock %}
+{% block main %}
+    <h1>新建文章</h1>
+
+
+    <form class="form-horizontal" method="post" action="" novalidate>
+        {% csrf_token %}
+        {% for article in form_obj %}  {# form_obj form对象循环拿到的是字段对象 #}
+            <div class="form-group {% if article.errors %}has-error{% endif %}">
+                <label for="{{ article.id_for_label }}" class="col-sm-2 control-label">{{ article.label }}
+                </label>
+                <div class="col-sm-8">
+                    {{ article }}
+                    <span class="help-block">{{ article.errors.0 }} {# 错误信息 #}</span>
+
+                </div>
+            </div>
+        {% endfor %}
+        <div class="form-group {% if article_detail_form_obj.content.errors %}has-error{% endif %}">
+            <label for="detail" class="col-sm-2 control-label">文章详情</label>
+            <div class="col-sm-8">
+                {{ article_detail_form_obj.content }}
+                <span class="help-block">{{ article_detail_form_obj.content.errors.0 }} {# 错误信息 #}</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">保存</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+{% block js %}
+    {% load static %}
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+{% endblock %}
